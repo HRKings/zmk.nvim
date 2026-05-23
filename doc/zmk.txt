@@ -1,0 +1,158 @@
+*zmk.txt*               For NVIM v0.10                       zmk.nvim
+
+==============================================================================
+Table of Contents                                      *zmk-table-of-contents*
+
+1. zmk.nvim                                                     |zmk-zmk.nvim|
+  - Features                                           |zmk-zmk.nvim-features|
+  - Requirements                                   |zmk-zmk.nvim-requirements|
+  - Installation                                   |zmk-zmk.nvim-installation|
+  - Configuration                                 |zmk-zmk.nvim-configuration|
+  - Layout                                               |zmk-zmk.nvim-layout|
+  - Usage                                                 |zmk-zmk.nvim-usage|
+  - Debugging                                         |zmk-zmk.nvim-debugging|
+
+==============================================================================
+1. zmk.nvim                                                     *zmk-zmk.nvim*
+
+**zmk.nvim** is a 100% lua plugin for Neovim that formats ZMK
+<https://zmk.dev/> keymaps, used in a large number of mechanical and hobbyist
+keyboards.
+
+
+FEATURES                                               *zmk-zmk.nvim-features*
+
+- automatically align your keymaps
+- create a comment string of your keymap
+- use inline JSON comments to make quick easy changes
+
+Note: preprocessor macros must start with `_` if they are to be identified as
+the start of a key.
+
+
+REQUIREMENTS                                       *zmk-zmk.nvim-requirements*
+
+- Neovim >= 0.10
+- Treesitter `devicetree` parser available
+    - this can be used for `.keymap` files with `set ft=dts`
+
+
+INSTALLATION                                       *zmk-zmk.nvim-installation*
+
+- install with your favourite package manager
+- call `setup` with your layout configuration
+
+>lua
+    {
+        'codethread/zmk.nvim',
+        config = function()
+            ---@type zmk.UserConfig
+            local conf = {
+                layout = {
+                    'x x x x x x x x x x x x',
+                    'x x x x x x x x x x x x',
+                    'x x x x x x x x x x x x',
+                    'x x x x x x x x x x x x',
+                    'x x x x x x x x x x x x',
+                    '_ _ _ _ _ x x _ _ _ _ _',
+                }
+            }
+            require('zmk').setup(conf)
+        end
+    }
+<
+
+
+CONFIGURATION                                     *zmk-zmk.nvim-configuration*
+
+zmk.nvim takes the following configuration (`---@type zmk.UserConfig`):
+
+- `layout` (string[] required): the keyboard key layout, see |zmk-zmk.nvim-layout|
+- `timeout` (number, default 5000): vim.notify timeout if using nvim-notify
+- `auto_format_pattern` (string|string[], default { '*.keymap' }): autocmd file pattern for ZMKFormat on save
+- `comment_preview` (table): properties for rendering the comment string of each keymap
+- `comment_preview.position` (top|bottom|none, default top): position of the preview, set to none to disable
+- `comment_preview.keymap_overrides` (table<string, string>): dictionary of key codes to text replacements
+- `comment_preview.symbols` (table<string, string>): symbols used for the preview comment border chars
+
+
+INLINE JSON ~
+
+A comment block can be added at the bottom of your config file. Inline configs
+will be reparsed on every call to ZMK functions, and then merged with your main
+config.
+
+It must:
+
+- be a block comment to avoid extra comment symbols
+- be surrounded with `zmk:json:start` and end with `zmk:json:end`
+
+e.g.:
+
+>
+    /*
+    zmk:json:start
+    {
+      "layout": [
+        "x x x _",
+        "x _ ^xx"
+      ],
+      "comment_preview": {
+        "keymap_overrides": {
+          "BAR": "BUTTER",
+          "FOO": "😎"
+        }
+      }
+    }
+    zmk:json:end
+    */
+<
+
+
+LAYOUT                                                   *zmk-zmk.nvim-layout*
+
+A `layout` is a list of strings, where each string represents a single row.
+Rows must all be the same width.
+
+Valid keys are:
+
+- `x`: indicates presence of key
+- ` `: space used to separate keys (must be used, and only use single spaces)
+- `_`: indicates an empty space (e.g to split left and right, or adding padding)
+- `x^x`: a key spanning multiple slots on the keyboard, the `^` indicates alignment
+    - `^xx`: left align across two columns
+    - `x^x`: center align
+    - `xx^`: right align
+    - `xx^xx`: center align but across three columns
+
+
+USAGE                                                     *zmk-zmk.nvim-usage*
+
+
+COMMANDS ~
+
+- `ZMKFormat`: format the current buffer
+
+
+LUA ~
+
+- `:lua require('zmk').setup( <config> )`: setup zmk using your config
+- `:lua require('zmk').format( <buf id ?> )`: format a given buffer, or the current if <buf id> is not provided
+
+
+AUTOCOMMANDS ~
+
+- A `BufWritePre` autocmd will format buffers on save matching `config.auto_format_pattern`
+  (defaults to `*.keymap`, set to `nil` to disable)
+
+
+DEBUGGING                                             *zmk-zmk.nvim-debugging*
+
+Getting your layout right may be an iterative process, so I recommend:
+
+- open a scratch buffer next to your `.keymap` file
+- get the buffer id of your keymap file with `:lua print(vim.api.nvim_get_current_buf())`
+- in your scratch buffer, call `zmk.setup { .. your config }` and `zmk.format(<buf id>)`
+- from within your scratch buffer evaluate with `luafile %`
+
+vim:tw=78:ts=8:noet:ft=help:norl:
