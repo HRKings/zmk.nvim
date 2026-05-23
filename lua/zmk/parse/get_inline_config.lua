@@ -1,6 +1,6 @@
 local ts = vim.treesitter
 
----@return qmk.InlineConfig | nil
+---@return zmk.InlineConfig | nil
 local function get_inline_config(visitor, root, content)
 	local config = nil
 	local comments = {}
@@ -14,15 +14,15 @@ local function get_inline_config(visitor, root, content)
 
 	local comment = table.concat(comments, '\n')
 
-	if string.match(comment, 'qmk:json:start') then
+	if string.match(comment, 'zmk:json:start') then
 		local lines = {}
 		local started = nil
 		local fin = nil
 
 		for s in comment:gmatch('[^\r\n]+') do
-			if string.match(s, 'qmk:json:start') then
+			if string.match(s, 'zmk:json:start') then
 				started = true
-			elseif string.match(s, 'qmk:json:end') then
+			elseif string.match(s, 'zmk:json:end') then
 				fin = true
 			elseif started and not fin then
 				table.insert(lines, s)

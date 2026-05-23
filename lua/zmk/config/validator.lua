@@ -1,5 +1,5 @@
-local utils = require('qmk.utils')
-local E = require('qmk.errors')
+local utils = require('zmk.utils')
+local E = require('zmk.errors')
 
 -- TODO: decouple from config and DI all the goodness
 

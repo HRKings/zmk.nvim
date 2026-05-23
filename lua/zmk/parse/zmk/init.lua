@@ -1,8 +1,8 @@
-local queries = require('qmk.parse.zmk.queries')
-local get_inline_config = require('qmk.parse.get_inline_config')
+local queries = require('zmk.parse.zmk.queries')
+local get_inline_config = require('zmk.parse.get_inline_config')
 local ts = vim.treesitter
 
----@return qmk.Keymap
+---@return zmk.Keymap
 local function empty_keymap()
 	return {
 		layout_name = 'ZMK', -- doesn't matter
@@ -14,9 +14,9 @@ local function join(list)
 	return table.concat(list, ' ')
 end
 
----@return qmk.KeymapsList
+---@return zmk.KeymapsList
 local function get_keymaps(root, content)
-	---@type qmk.KeymapsList
+	---@type zmk.KeymapsList
 	local keymaps = {}
 
 	local current_keymap = empty_keymap()
@@ -62,7 +62,7 @@ end
 
 ---get all keymaps from the current buffer
 ---@param content string
----@return qmk.Keymaps, qmk.InlineConfig | nil
+---@return zmk.Keymaps, zmk.InlineConfig | nil
 local function get_keymap(content)
 	local parser = ts.get_string_parser(content, 'devicetree', {})
 	local root = parser:parse()[1]:root()

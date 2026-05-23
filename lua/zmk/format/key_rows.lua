@@ -1,10 +1,10 @@
-local format_utils = require('qmk.format.utils')
-local utils = require('qmk.utils')
-local Seen = require('qmk.data.Seen')
+local format_utils = require('zmk.format.utils')
+local utils = require('zmk.utils')
+local Seen = require('zmk.data.Seen')
 local space = ' '
 
 ---@param span number
----@param key qmk.LayoutGridCell
+---@param key zmk.LayoutGridCell
 ---@return string
 local function align(span, key)
 	-- alignment is a string like 1/3 or 2/3
@@ -26,7 +26,7 @@ local function align(span, key)
 	end
 end
 
----@param layout qmk.LayoutGrid
+---@param layout zmk.LayoutGrid
 ---@param separator? string
 ---@param ending? string
 ---@return string[]

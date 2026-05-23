@@ -1,6 +1,6 @@
-local E = require('qmk.errors')
-local Seen = require('qmk.data.Seen')
-local utils = require('qmk.utils')
+local E = require('zmk.errors')
+local Seen = require('zmk.data.Seen')
+local utils = require('zmk.utils')
 
 local space = ' '
 
@@ -9,8 +9,8 @@ local function print_space(span, right_border)
 end
 
 ---@param span number
----@param key qmk.LayoutGridCell
----@param seen_keys qmk.Seen
+---@param key zmk.LayoutGridCell
+---@param seen_keys zmk.Seen
 ---@param right_border string
 local function print_key(span, key, seen_keys, right_border)
 	if key.type == 'key' then
@@ -60,7 +60,7 @@ end
 --Alignment is ignored and always just centered
 --I also assume two individual keys will be wider than a single key spanning two rows
 --for the sake of simplicity
----@param layout qmk.LayoutGrid
+---@param layout zmk.LayoutGrid
 ---@param user_symbols table<string, string>
 ---@return string[][]
 local function generate(layout, user_symbols)

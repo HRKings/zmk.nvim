@@ -1,11 +1,11 @@
-local E = require('qmk.errors')
+local E = require('zmk.errors')
 local match = assert.combinators.match
 local match_string = require('matcher_combinators.matchers.string')
-local config = require('qmk.config')
-local format = require('qmk.format.utils')
+local config = require('zmk.config')
+local format = require('zmk.format.utils')
 
 local function none_missing(conf)
-	return vim.tbl_deep_extend('force', { name = 'test', layout = { 'x' } }, conf)
+	return vim.tbl_deep_extend('force', { layout = { 'x' } }, conf)
 end
 
 describe('config', function()
@@ -17,13 +17,8 @@ describe('config', function()
 				err = E.config_missing,
 			},
 			{
-				msg = 'no name',
-				input = { layout = { 'x' } },
-				err = E.config_missing_required,
-			},
-			{
 				msg = 'no layout',
-				input = { name = 'test' },
+				input = {},
 				err = E.config_missing_required,
 			},
 			{
@@ -43,8 +38,8 @@ describe('config', function()
 			{
 				msg = 'invalid complex param',
 				input = none_missing({ comment_preview = { position = 'foo' } }),
-				err = 'qmk.nvim: [E18] invalid option: "comment_preview.position", expected: one of top, bottom, inside, none,'
-					.. ' got: foo | see :help qmk-setup for available configuration options',
+				err = 'zmk.nvim: [E18] invalid option: "comment_preview.position", expected: one of top, bottom, inside, none,'
+					.. ' got: foo | see :help zmk-setup for available configuration options',
 			},
 			{
 				msg = 'invalid layout empty',
@@ -96,12 +91,9 @@ describe('config', function()
 			end)
 		end
 
-		-- test auto_format_pattern separately since it needs regex matching instead of simple equality check
-		-- this is because the table ID becomes part of the error string in case the table is invalid
 		local test = {
 			msg = 'invalid param',
-			input = none_missing({ auto_format_pattern = { '*keymap.c', 3 } }),
-			-- escape [] so that regex mathing works
+			input = none_missing({ auto_format_pattern = { '*.keymap', 3 } }),
 			err = format.escape_magic_characters(
 				E.parse_invalid('', 'auto_format_pattern', 'string or string[]', 'table')
 			),

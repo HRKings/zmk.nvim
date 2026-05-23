@@ -1,19 +1,16 @@
 local M = {}
 
 -- use for validation
----@type qmk.UserConfig
+---@type zmk.UserConfig
 M.required_fields = {
-	name = '',
 	layout = { '' },
 }
 
----@type qmk.UserConfig
+---@type zmk.UserConfig
 M.default_config = {
-	name = '',
 	layout = { '' },
-	variant = 'qmk',
 	timeout = 5000,
-	auto_format_pattern = { '*keymap.c', '*.keymap' },
+	auto_format_pattern = { '*.keymap' },
 	comment_preview = {
 		position = 'top',
 		keymap_overrides = {},

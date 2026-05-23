@@ -1,7 +1,7 @@
-local utils = require('qmk.format.utils')
+local utils = require('zmk.format.utils')
 
 ---find all matching key codes from the key string and replace them with the keymap value
----@param keymap qmk.KeymapList
+---@param keymap zmk.KeymapList
 ---@return fun (key : string): string
 local function get_key_text(keymap)
 	return function(str)

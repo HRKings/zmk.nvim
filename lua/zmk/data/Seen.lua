@@ -1,9 +1,9 @@
----@class qmk.Seen
----@field private index qmk.SeenIndex
+---@class zmk.Seen
+---@field private index zmk.SeenIndex
 local Seen = {}
 
 ---Create a new Seen instance
----@return qmk.Seen
+---@return zmk.Seen
 function Seen:new()
 	local me = { index = {} }
 	self.__index = self
@@ -11,8 +11,8 @@ function Seen:new()
 end
 
 ---increment
----@param cell qmk.LayoutGridCell
----@param ctx qmk.LayoutGridContext
+---@param cell zmk.LayoutGridCell
+---@param ctx zmk.LayoutGridContext
 function Seen:increment(cell, ctx)
 	local seen = self.index[cell.key_index] or { span = 0 }
 	self.index[cell.key_index] = {
@@ -24,16 +24,16 @@ end
 
 ---Get stuff
 ---@param key_index number
----@return qmk.SeenSpan | nil
+---@return zmk.SeenSpan | nil
 function Seen:get(key_index)
 	return self.index[key_index]
 end
 
 return Seen
 
----@alias qmk.SeenIndex table<number, qmk.SeenSpan>
+---@alias zmk.SeenIndex table<number, zmk.SeenSpan>
 
----@class qmk.SeenSpan
+---@class zmk.SeenSpan
 ---@field span number
 ---@field is_last boolean
 ---@field count number

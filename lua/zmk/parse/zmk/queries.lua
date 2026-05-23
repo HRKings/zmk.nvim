@@ -1,5 +1,5 @@
-local visitor = require('qmk.parse.visitor').visitor
-local parse_query = require('qmk.parse.visitor').parse_query
+local visitor = require('zmk.parse.visitor').visitor
+local parse_query = require('zmk.parse.visitor').parse_query
 
 local M = {}
 
@@ -17,9 +17,7 @@ function M.keymap_visitor(root, content, visitors)
 
 	---look through the whole file and find all layouts
 	---including their names
-	---zmk is a little more dynamic than qmk, so we just grab
-	---everything in the bindings node and iterate through the
-	---children
+	---grab everything in the bindings node and iterate through the children
 	---@type vim.treesitter.Query
 	local keymap_query = parse_query(
 		'devicetree',

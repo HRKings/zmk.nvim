@@ -1,13 +1,13 @@
-local E = require('qmk.errors')
-local check = require('qmk.utils').check
-local validator = require('qmk.config.validator')
-local config = require('qmk.config.default')
-local key_map = require('qmk.config.key_map')
+local E = require('zmk.errors')
+local check = require('zmk.utils').check
+local validator = require('zmk.config.validator')
+local config = require('zmk.config.default')
+local key_map = require('zmk.config.key_map')
 
 local M = {}
 
----@param layout qmk.UserLayout
----@return qmk.LayoutPlan
+---@param layout zmk.UserLayout
+---@return zmk.LayoutPlan
 function M.parse_layout(layout)
 	check(#layout > 0, E.layout_empty)
 
@@ -60,12 +60,12 @@ local function merge(a, b)
 	return vim.tbl_deep_extend('force', a, b)
 end
 
----@param user_config qmk.UserConfig
----@return qmk.Config
+---@param user_config zmk.UserConfig
+---@return zmk.Config
 function M.parse(user_config)
 	check(user_config, E.config_missing)
-	check(user_config.name and user_config.layout, E.config_missing_required)
-	---@type qmk.Config
+	check(user_config.layout, E.config_missing_required)
+	---@type zmk.Config
 	local merged_config = merge(config.default_config, user_config)
 
 	merged_config.layout = M.parse_layout(merged_config.layout)
@@ -73,12 +73,8 @@ function M.parse(user_config)
 	-- TODO: DI the validator
 	validator(merged_config, config.default_config)
 
-	local base_keymap = key_map.key_map
-	if merged_config.variant == 'zmk' then
-		base_keymap = require('qmk.config.zmk_key_map').zmk_key_map
-	end
-
-	local keymaps = merge(base_keymap, merged_config.comment_preview.keymap_overrides or {})
+	local keymaps =
+		merge(key_map.zmk_key_map, merged_config.comment_preview.keymap_overrides or {})
 	local merged_sorted_config =
 		merge(merged_config, { comment_preview = { keymap_overrides = key_map.sort(keymaps) } })
 
@@ -92,28 +88,26 @@ return M
 ---------------------------------------------------------------------------------
 
 ---The users config after parsing
----@class qmk.Config
----@field name string # name of the layout macro, this is used to find the layout in the keymap
+---@class zmk.Config
 ---@field timeout number # if using nvim-notify, this will be the duration of the notification
----@field variant 'qmk' | 'zmk' # the hardware being targeted, defaults to 'qmk'
----@field auto_format_pattern string | string[] # autocommand pattern to match against for auto formatting, e.g. '*keymap.c'
----@field layout qmk.LayoutPlan
----@field comment_preview qmk.Preview
+---@field auto_format_pattern string | string[] # autocommand pattern to match against for auto formatting, e.g. '*.keymap'
+---@field layout zmk.LayoutPlan
+---@field comment_preview zmk.Preview
 
----@class qmk.Preview
----@field position 'top' | 'bottom' | 'inside' | 'none'
----@field keymap_overrides qmk.KeymapList
----@field symbols qmk.PreviewSymbols
+---@class zmk.Preview
+---@field position 'top' | 'bottom' | 'none'
+---@field keymap_overrides zmk.KeymapList
+---@field symbols zmk.PreviewSymbols
 
----@alias qmk.KeymapList {key: string, value: string}[]
+---@alias zmk.KeymapList {key: string, value: string}[]
 
----@alias qmk.PreviewSymbols { space: string, tl: string, tr: string, bl: string, br: string, horz: string, vert: string, tm: string, bm: string, ml: string, mr: string, mm: string }
+---@alias zmk.PreviewSymbols { space: string, tl: string, tr: string, bl: string, br: string, horz: string, vert: string, tm: string, bm: string, ml: string, mr: string, mm: string }
 
 ---Struct to represent the users desired layout
----@alias qmk.LayoutPlan qmk.LayoutPlanKey[][]
+---@alias zmk.LayoutPlan zmk.LayoutPlanKey[][]
 
----Struct to represent a single key in a qmk.Layout
----@class qmk.LayoutPlanKey
+---Struct to represent a single key in a zmk.Layout
+---@class zmk.LayoutPlanKey
 ---@field width number
 ---@field align? string
 ---@field type 'key' | 'span' | 'gap'
@@ -122,23 +116,20 @@ return M
 ---- USER CONFIG
 ---------------------------------------------------------------------------------
 
----The users config passed to qmk before parsing
----@class qmk.UserConfig
----@field name string # name of the layout macro, this is used to find the layout in the keymap
----@field layout qmk.UserLayout
----@field variant? 'qmk' | 'zmk' # the hardware being targeted, defaults to 'qmk'
+---The users config passed to zmk before parsing
+---@class zmk.UserConfig
+---@field layout zmk.UserLayout
 ---@field timeout? number # if using nvim-notify, this will be the duration of the notification
----@field auto_format_pattern? string | string[] # autocommand pattern to match against for auto formatting, e.g. '*keymap.c'
----@field comment_preview? qmk.UserPreview
+---@field auto_format_pattern? string | string[] # autocommand pattern to match against for auto formatting, e.g. '*.keymap'
+---@field comment_preview? zmk.UserPreview
 
----@alias qmk.UserLayout string[]
+---@alias zmk.UserLayout string[]
 
----@class qmk.UserPreview
----@field position? 'top' | 'bottom' | 'inside' | 'none'
----@field keymap_overrides? table<string, string> # table of keymap overrides, e.g. { KC_ESC = 'Esc' }
----@field symbols? qmk.PreviewSymbols
+---@class zmk.UserPreview
+---@field position? 'top' | 'bottom' | 'none'
+---@field keymap_overrides? table<string, string> # table of keymap overrides, e.g. { ESC = 'Esc' }
+---@field symbols? zmk.PreviewSymbols
 
----@class qmk.InlineConfig
----@field name? qmk.UserLayout
----@field layout? qmk.UserLayout
----@field comment_preview? qmk.UserPreview
+---@class zmk.InlineConfig
+---@field layout? zmk.UserLayout
+---@field comment_preview? zmk.UserPreview

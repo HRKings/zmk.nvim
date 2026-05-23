@@ -1,11 +1,11 @@
 ---@diagnostic disable: invisible
-local check = require('qmk.utils').check
-local utils = require('qmk.utils')
-local E = require('qmk.errors')
+local check = require('zmk.utils').check
+local utils = require('zmk.utils')
+local E = require('zmk.errors')
 
 ---comment
----@param key qmk.LayoutGridCell
----@param row qmk.LayoutGridCell[]
+---@param key zmk.LayoutGridCell
+---@param row zmk.LayoutGridCell[]
 ---@param i number
 local function is_final_key(key, row, i)
 	---@diagnostic disable-next-line: missing-parameter
@@ -29,7 +29,7 @@ local function is_all_padding(ls)
 	return #padding == #ls
 end
 
----@type qmk.LayoutGridCell
+---@type zmk.LayoutGridCell
 local padding_cell = {
 	key_index = 999999,
 	type = 'padding',
@@ -37,7 +37,7 @@ local padding_cell = {
 	key = ' ',
 }
 
----@param grid qmk.LayoutGridCell[]
+---@param grid zmk.LayoutGridCell[]
 ---@return number[]
 local function larget_per_column(grid)
 	local width = #grid[1]
@@ -60,18 +60,18 @@ local function larget_per_column(grid)
 	return column_sizes
 end
 
----@class qmk.LayoutGrid
----@field cells fun(self: qmk.LayoutGrid): qmk.LayoutGridCell[][]
----@field private grid qmk.LayoutGridCell[][]
+---@class zmk.LayoutGrid
+---@field cells fun(self: zmk.LayoutGrid): zmk.LayoutGridCell[][]
+---@field private grid zmk.LayoutGridCell[][]
 local LayoutGrid = {}
 
----@param layout qmk.LayoutPlan
+---@param layout zmk.LayoutPlan
 ---@param keys string[]
----@return qmk.LayoutGrid
+---@return zmk.LayoutGrid
 function LayoutGrid:new(layout, keys)
 	local key_idx = 0
 
-	---@type qmk.LayoutGridCell[][]
+	---@type zmk.LayoutGridCell[][]
 	local grid = {}
 
 	for row_i, row in pairs(layout) do
@@ -130,7 +130,7 @@ function LayoutGrid:cells()
 	return self.grid
 end
 
----@class qmk.LayoutGridContext
+---@class zmk.LayoutGridContext
 ---@field col number
 ---@field row number
 ---@field is_empty boolean
@@ -145,7 +145,7 @@ end
 ---@field is_sibling_bridge_vert boolean
 
 ---iterate through the grid
----@param fn fun(key: qmk.LayoutGridCell, context: qmk.LayoutGridContext):nil
+---@param fn fun(key: zmk.LayoutGridCell, context: zmk.LayoutGridContext):nil
 function LayoutGrid:for_each(fn)
 	for row_i, row in ipairs(self.grid) do
 		local found_final_key = false
@@ -165,7 +165,7 @@ function LayoutGrid:for_each(fn)
 				and self.grid[row_i + 1]
 				and self.grid[row_i + 1][col_i + 1]
 
-			---@type qmk.LayoutGridContext
+			---@type zmk.LayoutGridContext
 			local ctx = {
 				col = col_i,
 				row = row_i,
@@ -201,7 +201,7 @@ return LayoutGrid
 -- TYPES
 --------------------------------------------------------------------------------
 
----@class qmk.LayoutGridCell
+---@class zmk.LayoutGridCell
 ---@field width number
 ---@field type 'key' | 'span' | 'gap' | 'padding'
 ---@field key string #the text value of the cell

@@ -1,3 +1,5 @@
+local E = require('zmk.errors')
+
 local empty = '   '
 
 local M = {}
@@ -317,6 +319,25 @@ end
 -- Create function mappings
 for i = 1, 24 do
 	M.zmk_key_map['F' .. i] = 'f' .. i
+end
+
+---sort so that the longest key is at the top, meaning when we match up keys
+---to the keymap, we'll get the most specific first
+---@param key_map table<string, string>
+---@return zmk.KeymapList
+function M.sort(key_map)
+	---@type zmk.KeymapList
+	local map = {}
+	for key, value in pairs(key_map) do
+		if type(key) ~= 'string' or type(value) ~= 'string' then
+			error(E.config_keymap_invalid_pair(key, value))
+		end
+		table.insert(map, { key = key, value = value })
+	end
+	table.sort(map, function(a, b)
+		return #a.key > #b.key
+	end)
+	return map
 end
 
 return M

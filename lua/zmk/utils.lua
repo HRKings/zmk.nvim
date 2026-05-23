@@ -15,7 +15,7 @@ end
 M.timeout = 0
 
 function M.notify(err)
-	vim.notify(err, vim.log.levels.ERROR, { title = 'qmk.nvim', timeout = M.timeout })
+	vim.notify(err, vim.log.levels.ERROR, { title = 'zmk.nvim', timeout = M.timeout })
 end
 
 function M.cond(conditions)

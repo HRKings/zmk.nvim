@@ -1,14 +1,13 @@
-local E = require('qmk.errors')
-local check = require('qmk.utils').check
-local merge_configs = require('qmk.config.merge')
+local E = require('zmk.errors')
+local check = require('zmk.utils').check
+local merge_configs = require('zmk.config.merge')
 
 local M = {
-	qmk = require('qmk.parse.qmk'),
-	zmk = require('qmk.parse.zmk'),
+	zmk = require('zmk.parse.zmk'),
 }
 
 ---assert all keymaps don't overlap with the declaration itself
----@param keymaps qmk.Keymaps
+---@param keymaps zmk.Keymaps
 ---@throws string
 local function validate(keymaps)
 	local start, final = keymaps.pos.start, keymaps.pos.final
@@ -25,12 +24,11 @@ local function validate(keymaps)
 	end
 end
 
----parse a keymap file, such as keymap.c for qmk into a qmk.Keymaps struct
----currenly only supports qmk keymaps, but in theory could support anything that parses to a qmk.Keymaps
+---parse a keymap file into a zmk.Keymaps struct
 ---@param content string
----@param options qmk.Config
----@param parser fun(content: string, options: qmk.Config): qmk.Keymaps, qmk.InlineConfig | nil
----@return qmk.Keymaps, qmk.Config
+---@param options zmk.Config
+---@param parser fun(content: string, options: zmk.Config): zmk.Keymaps, zmk.InlineConfig | nil
+---@return zmk.Keymaps, zmk.Config
 function M.parse(content, options, parser)
 	local keymaps, inline_config = parser(content, options)
 	validate(keymaps)
@@ -45,18 +43,18 @@ return M
 -- TYPES
 --------------------------------------------------------------------------------
 
----@class qmk.Keymaps
----@field keymaps qmk.KeymapsList
----@field pos qmk.Position
+---@class zmk.Keymaps
+---@field keymaps zmk.KeymapsList
+---@field pos zmk.Position
 
----@alias qmk.KeymapsList qmk.Keymap[]
+---@alias zmk.KeymapsList zmk.Keymap[]
 
----@class qmk.Keymap
+---@class zmk.Keymap
 ---@field layer_name string
 ---@field layout_name string
 ---@field keys string[]
----@field pos qmk.Position
+---@field pos zmk.Position
 
----@class qmk.Position
+---@class zmk.Position
 ---@field start number
 ---@field final number

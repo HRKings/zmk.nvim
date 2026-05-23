@@ -1,9 +1,9 @@
-local key_map = require('qmk.config.key_map')
-local parse = require('qmk.config.parse')
+local key_map = require('zmk.config.key_map')
+local parse = require('zmk.config.parse')
 
----@param options qmk.Config
----@param inline_config qmk.InlineConfig
----@return qmk.Config
+---@param options zmk.Config
+---@param inline_config zmk.InlineConfig
+---@return zmk.Config
 local function merge_configs(options, inline_config)
 	if inline_config.layout then
 		options.layout = parse.parse_layout(inline_config.layout)

@@ -1,11 +1,11 @@
-local generate = require('qmk.format.preview').generate
-local LayoutGrid = require('qmk.data.LayoutGrid')
-local get_key_text = require('qmk.format.get_key_text')
-local print_rows = require('qmk.format.key_rows')
+local generate = require('zmk.format.preview').generate
+local LayoutGrid = require('zmk.data.LayoutGrid')
+local get_key_text = require('zmk.format.get_key_text')
+local print_rows = require('zmk.format.key_rows')
 
----@param options qmk.Config
----@param keymap qmk.Keymap
----@return qmk.ZMKResult
+---@param options zmk.Config
+---@param keymap zmk.Keymap
+---@return zmk.ZMKResult
 local function format_keymap(keymap, options)
 	local keys = keymap.keys
 	local key_layout = LayoutGrid:new(options.layout, keys)
@@ -29,8 +29,8 @@ end
 
 return format_keymap
 
----@class qmk.ZMKResult
+---@class zmk.ZMKResult
 ---@field layer_name string
----@field pos qmk.Position
+---@field pos zmk.Position
 ---@field keys string[]
 ---@field preview? string[]

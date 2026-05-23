@@ -1,6 +1,6 @@
 local match = assert.combinators.match
-local zmk_parser = require('qmk.parse.zmk')
-local parser = require('qmk.parse').parse
+local zmk_parser = require('zmk.parse.zmk')
+local parser = require('zmk.parse').parse
 
 local layout_name = 'ZMK'
 
@@ -20,8 +20,8 @@ local function create_keymap(keys)
     ]]
 end
 
----@param keymaps qmk.KeymapsList
----@return qmk.Keymaps
+---@param keymaps zmk.KeymapsList
+---@return zmk.Keymaps
 local function create_output(keymaps)
 	return {
 		pos = { start = 0, final = 10000000 },
@@ -30,7 +30,7 @@ local function create_output(keymaps)
 end
 
 describe('parse zmk keymaps:', function()
-	---@type {msg: string, input: string, output: qmk.Keymaps}[]
+	---@type {msg: string, input: string, output: zmk.Keymaps}[]
 	local tests = {
 		{
 			msg = 'simple keymap',

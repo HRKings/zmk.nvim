@@ -1,16 +1,7 @@
-local parser = require('qmk.parse')
+local parser = require('zmk.parse')
 local api = vim.api
 
----@param options qmk.Config
----@param content string[]
----@param bufnr number
-local function qmk(options, content, bufnr)
-	local keymaps, config = parser.parse(table.concat(content, '\n'), options, parser.qmk)
-	local formatted = require('qmk.format.qmk')(keymaps, config)
-	api.nvim_buf_set_lines(bufnr, keymaps.pos.start + 1, keymaps.pos.final, false, formatted)
-end
-
----@param options qmk.Config
+---@param options zmk.Config
 ---@param content string[]
 ---@param bufnr number
 ---@param last_keymap? number
@@ -20,7 +11,7 @@ local function zmk(options, content, bufnr, last_keymap)
 
 	local keymap = keymaps[keymap_id]
 	if keymap ~= nil then
-		local out = require('qmk.format.zmk')(keymap, options)
+		local out = require('zmk.format.zmk')(keymap, options)
 		if not out.preview then
 			api.nvim_buf_set_lines(bufnr, out.pos.start + 1, out.pos.final, false, out.keys)
 		elseif options.comment_preview.position == 'bottom' then
@@ -37,18 +28,13 @@ local function zmk(options, content, bufnr, last_keymap)
 	end
 end
 
-local for_hardware = {
-	qmk = qmk,
-	zmk = zmk,
-}
-
----format_qmk_keymaps
----@param options qmk.Config
+---format ZMK keymaps in a buffer
+---@param options zmk.Config
 ---@param buf? number
-local function format_qmk_keymaps(options, buf)
+local function format_zmk_keymaps(options, buf)
 	local bufnr = buf or api.nvim_get_current_buf()
 	local content = api.nvim_buf_get_lines(bufnr, 0, -1, false)
-	for_hardware[options.variant](options, content, bufnr)
+	zmk(options, content, bufnr)
 end
 
-return format_qmk_keymaps
+return format_zmk_keymaps

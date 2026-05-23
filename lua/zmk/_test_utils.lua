@@ -1,4 +1,4 @@
-local config = require('qmk.config')
+local config = require('zmk.config')
 local Path = require('plenary.path')
 
 local M = {}
@@ -7,10 +7,10 @@ local M = {}
 ---the buffer content can then be retrieved via `buff_content` (at which point the output will also
 ---be written to `input`_actual for comparison)
 ---@param input string #name of the file, the expected result must be of the same filename appended with '_out'
----@param fixture_dir? string #directory to look in, defaults to 'qmk'
+---@param fixture_dir? string #directory to look in, defaults to 'zmk'
 ---@return { expected: string[], buff: number, buff_content: fun(): string[] }
 function M.snapshot(input, fixture_dir)
-	local dir = fixture_dir or 'qmk'
+	local dir = fixture_dir or 'zmk'
 	local parts = vim.split(input, '.', { plain = true })
 	local filename = parts[1]
 	local extension = '.' .. parts[2]
@@ -23,11 +23,8 @@ function M.snapshot(input, fixture_dir)
 	vim.api.nvim_buf_set_lines(buff, 0, -1, false, vim.split(content, '\n', {}))
 
 	return {
-		-- expected text as list of lines
 		expected = vim.split(out, '\n', {}),
-		-- buffer handle
 		buff = buff,
-		-- function to get buffer content as list of lines
 		buff_content = function()
 			local buff_content = vim.api.nvim_buf_get_lines(buff, 0, -1, false)
 			actual:write(table.concat(buff_content, '\n'), 'w')
@@ -36,24 +33,20 @@ function M.snapshot(input, fixture_dir)
 	}
 end
 
----@param layout qmk.UserLayout
----@param variant? string
----@return qmk.Config
-function M.create_options(layout, variant)
+---@param layout zmk.UserLayout
+---@return zmk.Config
+function M.create_options(layout)
 	return config.parse({
-		name = 'test',
 		comment_preview = { position = 'none' },
 		layout = layout,
-		variant = variant or 'qmk',
 	})
 end
 
----@param layout qmk.UserLayout
----@param options? qmk.UserConfig
----@return qmk.Config
+---@param layout zmk.UserLayout
+---@param options? zmk.UserConfig
+---@return zmk.Config
 function M.create_options_preview(layout, options)
 	return config.parse(vim.tbl_deep_extend('force', {
-		name = 'test',
 		layout = layout,
 		comment_preview = { position = 'top' },
 	}, options or {}))
