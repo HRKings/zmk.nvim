@@ -20,7 +20,7 @@ else
 endif
 
 watch:
-	@echo -e '\nRunning tests on "lua/qmk/**/*_spec.lua" when any Lua file on "lua" and "test/spec" changes\n'
+	@echo -e '\nRunning tests on "lua/zmk/**/*_spec.lua" when any Lua file on "lua" and "test/spec" changes\n'
 	@find ./test/spec/ ./lua/ -name '*.lua' \
 	  | entr make test SPEC=$(SPEC)
 

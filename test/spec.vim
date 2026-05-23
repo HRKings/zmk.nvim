@@ -11,4 +11,4 @@ runtime plugin/plenary.vim
 lua require('plenary.busted')
 lua require('matcher_combinators.luassert')
 
-runtime plugin/qmk.lua
+runtime plugin/zmk.lua

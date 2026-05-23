@@ -79,7 +79,7 @@
     };
 };
 /*
-qmk:json:start
+zmk:json:start
 {
   "comment_preview": {
     "keymap_overrides": {
@@ -88,6 +88,6 @@ qmk:json:start
     }
   }
 }
-qmk:json:end
+zmk:json:end
 */
 
