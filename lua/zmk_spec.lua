@@ -1,6 +1,15 @@
 local testy = require('zmk._test_utils')
 require('matcher_combinators.luassert')
 
+local dactyl_layout = {
+	'1  2  3  4  5  6  7  8  9  10 11 12',
+	'13 14 15 16 17 18 19 20 21 22 23 24',
+	'25 26 27 28 29 30 31 32 33 34 35 36',
+	'37 38 39 40 41 42 43 44 45 46 47 48',
+	'49 50 51 52 53 54 55 56 57 58 59 60',
+	'_  _  _  _  _  61 62 _  _  _  _  _',
+}
+
 describe('zmk', function()
 	describe('api', function()
 		it('is not configured by default', function()
@@ -10,7 +19,7 @@ describe('zmk', function()
 
 		it('is configured after setup', function()
 			local zmk = require('zmk')
-			zmk.setup({ layout = { 'x' } })
+			zmk.setup({ layout = { '1' } })
 			assert.is_true(zmk.is_configured())
 		end)
 
@@ -31,14 +40,7 @@ describe('zmk', function()
 			local zmk = require('zmk')
 			zmk.setup({
 				comment_preview = { position = 'top' },
-				layout = {
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'_ _ _ _ _ x x _ _ _ _ _',
-				},
+				layout = dactyl_layout,
 			})
 			zmk.format(T.buff)
 
@@ -51,14 +53,7 @@ describe('zmk', function()
 			local zmk = require('zmk')
 			zmk.setup({
 				comment_preview = { position = 'bottom' },
-				layout = {
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'_ _ _ _ _ x x _ _ _ _ _',
-				},
+				layout = dactyl_layout,
 			})
 			zmk.format(T.buff)
 
@@ -71,14 +66,7 @@ describe('zmk', function()
 			local zmk = require('zmk')
 			zmk.setup({
 				comment_preview = { position = 'top' },
-				layout = {
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'x x x x x x x x x x x x',
-					'_ _ _ _ _ x x _ _ _ _ _',
-				},
+				layout = dactyl_layout,
 			})
 			zmk.format(T.buff)
 

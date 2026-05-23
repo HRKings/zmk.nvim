@@ -44,9 +44,9 @@ zmk.setup {
         },
     },
     layout = { -- create a visual representation of your final layout
-        'x x',
-        'x x',
-        'x x',
+        '1 2',
+        '3 4',
+        '5 6',
     },
 }
 ```
@@ -73,12 +73,12 @@ e.g:
         ---@type zmk.UserConfig
         local conf = {
             layout = {
-                'x x x x x x x x x x x x',
-                'x x x x x x x x x x x x',
-                'x x x x x x x x x x x x',
-                'x x x x x x x x x x x x',
-                'x x x x x x x x x x x x',
-                '_ _ _ _ _ x x _ _ _ _ _',
+                '1  2  3  4  5  6  7  8  9  10 11 12',
+                '13 14 15 16 17 18 19 20 21 22 23 24',
+                '25 26 27 28 29 30 31 32 33 34 35 36',
+                '37 38 39 40 41 42 43 44 45 46 47 48',
+                '49 50 51 52 53 54 55 56 57 58 59 60',
+                '_  _  _  _  _  61 62 _  _  _  _  _',
             }
         }
         require('zmk').setup(conf)
@@ -107,7 +107,7 @@ zmk.nvim takes the following configuration (`---@type zmk.UserConfig`):
 
 ```lua
 {
-    layout = { 'x x' },
+    layout = { '1 2' },
     auto_format_pattern = nil,
     comment_preview = {
         position = 'none'
@@ -122,7 +122,7 @@ zmk.nvim takes the following configuration (`---@type zmk.UserConfig`):
 
 ```lua
 {
-    layout = { 'x x' },
+    layout = { '1 2' },
     comment_preview = {
         position = 'top',
         keymap_overrides = {
@@ -158,8 +158,8 @@ e.g.:
 zmk:json:start
 {
   "layout": [
-    "x x x _",
-    "x _ ^xx"
+    "1 2 3 _",
+    "4 _ 5 5"
   ],
   "comment_preview": {
     "keymap_overrides": {
@@ -185,20 +185,45 @@ Alternatively, you can copy the `queries/devicetree/injections.scm` to your nvim
 
 ## Layout
 
-The `layout` config describes your keyboard's physical layout.
+The `layout` describes your keyboard's physical layout using **position indices** —
+each token is the 1-based index of a binding from your keymap's `bindings = <...>`
+list. Order in the layout does not need to match order in the bindings, so disjoint
+islands (encoder clusters, arrow clusters, thumb keys with offsets) work naturally.
 
-A `layout` is a list of strings, where each string represents a single row. Rows must all be the same width, and you'll see they visually align to what your keymap looks like.
+Layout = list of strings, one string per row. All rows must have the same number
+of tokens (use `_` to pad).
 
-Valid keys are
+Tokens:
 
-- `x`: indicates presence of key
-- ` `: space used to separate keys (must be used, and only use single spaces)
-- `_`: indicates an empty space (e.g to split left and right, or adding padding)
-- `x^x`: a key spanning multiple slots on the keyboard, the `^` indicates alignment. (NOTE vertically sized keys, like some thumb clusters, are not yet supported)
-  - `^xx`: left align across two columns
-  - `x^x`: center align
-  - `xx^`: right align
-  - `xx^xx`: center align but across three columns
+- `1`, `2`, `42`, ... : a positive integer = position N from the bindings array
+- `_` : an empty cell (gap). Used for offsets and to separate islands so each
+  island renders with its own border.
+- Repeating the same index in consecutive cells on one row marks a horizontal
+  span: `5 5 5` = key 5 occupies 3 cells. Vertical spans (same index across rows)
+  are not supported.
+
+Rules:
+
+- Every binding index from 1 to N (where N = number of bindings) must appear
+  exactly once (or as one contiguous span run).
+- Multiple spaces between tokens are allowed and ignored — handy for aligning
+  multi-digit indices visually.
+
+### Islands example
+
+A keyboard with main left half (6 cols × 2 rows), middle cluster (3 cols × 2 rows
+where row 1 has just a centered key) and main right half (5 cols × 2 rows):
+
+```lua
+layout = {
+  '1  2  3  4  5  6  _  _  7  _  _  8  9  10 11 12',
+  '13 14 15 16 17 18 _  19 20 21 _  22 23 24 25 26',
+}
+```
+
+The middle cluster (indices 7, 19, 20, 21) is surrounded by `_` gaps so it gets
+its own preview border, independent column widths and is not visually attached to
+the left or right halves.
 
 ## Usage
 

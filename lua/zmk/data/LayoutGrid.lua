@@ -3,7 +3,6 @@ local check = require('zmk.utils').check
 local utils = require('zmk.utils')
 local E = require('zmk.errors')
 
----comment
 ---@param key zmk.LayoutGridCell
 ---@param row zmk.LayoutGridCell[]
 ---@param i number
@@ -37,7 +36,7 @@ local padding_cell = {
 	key = ' ',
 }
 
----@param grid zmk.LayoutGridCell[]
+---@param grid zmk.LayoutGridCell[][]
 ---@return number[]
 local function larget_per_column(grid)
 	local width = #grid[1]
@@ -69,16 +68,17 @@ local LayoutGrid = {}
 ---@param keys string[]
 ---@return zmk.LayoutGrid
 function LayoutGrid:new(layout, keys)
-	local key_idx = 0
-
 	---@type zmk.LayoutGridCell[][]
 	local grid = {}
+
+	local seen = {}
+	local max_index = 0
 
 	for row_i, row in pairs(layout) do
 		grid[row_i] = {}
 
-		for _, key in pairs(row) do
-			if key.type == 'gap' then
+		for _, cell in ipairs(row) do
+			if cell.type == 'gap' then
 				table.insert(grid[row_i], {
 					type = 'gap',
 					key_index = 999999,
@@ -86,26 +86,30 @@ function LayoutGrid:new(layout, keys)
 					key = ' ',
 				})
 			else
-				key_idx = key_idx + 1
-				for _ = 1, key.width do
-					local info = vim.tbl_deep_extend('force', key, {
-						key = keys[key_idx],
-						key_index = key_idx,
-					})
-					table.insert(grid[row_i], info)
+				local idx = cell.key_index
+				check(idx <= #keys, E.key_index_out_of_range(idx, #keys))
+				seen[idx] = true
+				if idx > max_index then
+					max_index = idx
 				end
+				table.insert(grid[row_i], {
+					type = cell.type,
+					key_index = idx,
+					width = 1,
+					key = keys[idx] or '',
+				})
 			end
 		end
 
-		-- add padding to start and end of row
 		table.insert(grid[row_i], utils.shallow_copy(padding_cell))
 		table.insert(grid[row_i], 1, utils.shallow_copy(padding_cell))
 	end
 
-	check(key_idx <= #keys, E.config_too_few_keys)
-	check(key_idx >= #keys, E.config_too_many_keys)
+	check(max_index == #keys, E.key_index_out_of_range(#keys, max_index))
+	for n = 1, #keys do
+		check(seen[n], E.key_index_missing(n))
+	end
 
-	-- add padding to top and bottom of grid
 	local padding_row = {}
 	for _ = 1, #grid[1] do
 		table.insert(padding_row, utils.shallow_copy(padding_cell))
@@ -204,7 +208,6 @@ return LayoutGrid
 ---@class zmk.LayoutGridCell
 ---@field width number
 ---@field type 'key' | 'span' | 'gap' | 'padding'
----@field key string #the text value of the cell
----@field key_index number #the unique key id which is shared between different cells that represent the same physical key, e.g if the key spans two cells, each cell is stored in the grid, but will have the same key_index
----@field align? string
+---@field key string
+---@field key_index number
 ---@field span? number

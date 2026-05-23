@@ -13,8 +13,22 @@ local E = {
 
 	config_too_many_keys = 'zmk.nvim: [E05] too many keys in the keymap for your configured layout',
 	config_too_few_keys = 'zmk.nvim: [E06] not enough keys in the keymap for your configured layout',
-	config_invalid_symbol = 'zmk.nvim: [E07] invalid layout, expected "x", "_" or "^"',
-	config_invalid_span = 'zmk.nvim: [E08] invalid layout, expected a ^ in the key',
+	config_invalid_symbol = 'zmk.nvim: [E07] invalid layout token, expected a positive integer or "_"',
+	key_index_duplicate = function(idx)
+		return 'zmk.nvim: [E08] key index '
+			.. tostring(idx)
+			.. ' appears in multiple rows (vertical spans are not supported)'
+	end,
+	key_index_out_of_range = function(idx, max_keys)
+		return 'zmk.nvim: [E19] key index '
+			.. tostring(idx)
+			.. ' is out of range, layout has '
+			.. tostring(max_keys)
+			.. ' keys'
+	end,
+	key_index_missing = function(idx)
+		return 'zmk.nvim: [E20] layout is missing key index ' .. tostring(idx)
+	end,
 
 	config_missing = 'zmk.nvim: [E09] user_config is required for setup()',
 	config_missing_required = 'zmk.nvim: [E10] config missing, required key is layout',

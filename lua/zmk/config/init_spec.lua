@@ -5,7 +5,7 @@ local config = require('zmk.config')
 local format = require('zmk.format.utils')
 
 local function none_missing(conf)
-	return vim.tbl_deep_extend('force', { layout = { 'x' } }, conf)
+	return vim.tbl_deep_extend('force', { layout = { '1' } }, conf)
 end
 
 describe('config', function()
@@ -53,33 +53,33 @@ describe('config', function()
 			},
 			{
 				msg = 'invalid layout uneven',
-				input = none_missing({ layout = { 'x', 'x x' } }),
+				input = none_missing({ layout = { '1', '2 3' } }),
 				err = E.layout_missing_padding,
 			},
 			{
 				msg = 'invalid layout trailing space',
-				input = none_missing({ layout = { ' x' } }),
+				input = none_missing({ layout = { ' 1' } }),
 				err = E.layout_trailing_whitespace,
 			},
 			{
 				msg = 'invalid layout leading space',
-				input = none_missing({ layout = { 'x ' } }),
+				input = none_missing({ layout = { '1 ' } }),
 				err = E.layout_trailing_whitespace,
 			},
 			{
-				msg = 'invalid layout invalid double space',
-				input = none_missing({ layout = { 'x  x', 'x  x' } }),
-				err = E.layout_double_whitespace,
-			},
-			{
-				msg = 'invalid layout symbol',
-				input = none_missing({ layout = { 'x x y' } }),
+				msg = 'invalid layout symbol (alpha)',
+				input = none_missing({ layout = { '1 2 y' } }),
 				err = E.config_invalid_symbol,
 			},
 			{
-				msg = 'invalid layout span',
-				input = none_missing({ layout = { 'x xxx' } }),
-				err = E.config_invalid_span,
+				msg = 'invalid layout symbol (zero)',
+				input = none_missing({ layout = { '1 0' } }),
+				err = E.config_invalid_symbol,
+			},
+			{
+				msg = 'duplicate key index across rows',
+				input = none_missing({ layout = { '1 2', '2 3' } }),
+				err = E.key_index_duplicate(2),
 			},
 		}
 

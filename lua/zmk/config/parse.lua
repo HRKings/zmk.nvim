@@ -11,48 +11,81 @@ local M = {}
 function M.parse_layout(layout)
 	check(#layout > 0, E.layout_empty)
 
+	---@type zmk.LayoutPlan
 	local result = {}
+	local seen_indexes = {}
+
+	local row_token_counts = {}
+
 	for row_i, row in pairs(layout) do
 		check(#row > 0, E.layout_row_empty)
 
-		-- check for trailing whitespace
 		check(not vim.startswith(row, ' '), E.layout_trailing_whitespace)
 		check(not vim.endswith(row, ' '), E.layout_trailing_whitespace)
 
-		-- check for two white spaces in a row
-		local invalid_whitespace = string.find(row, '  ', 1, true)
-		check(not invalid_whitespace, E.layout_double_whitespace)
+		---@diagnostic disable-next-line: missing-parameter
+		local raw = vim.split(row, ' ', { plain = true })
+		local tokens = vim.tbl_filter(function(t)
+			return t ~= ''
+		end, raw)
 
-		-- check for uneven rows
+		row_token_counts[row_i] = #tokens
 		if row_i > 1 then
-			check(#row == #layout[row_i - 1], E.layout_missing_padding)
+			check(#tokens == row_token_counts[row_i - 1], E.layout_missing_padding)
 		end
 
-		---@diagnostic disable-next-line: missing-parameter
-		local keys = vim.split(row, ' ')
-
-		local row_info = vim.tbl_map(function(key)
-			if key == '_' then
-				return { width = 1, type = 'gap' }
+		---@type zmk.LayoutPlanKey[]
+		local cells = {}
+		for col_i, tok in ipairs(tokens) do
+			if tok == '_' then
+				cells[col_i] = { type = 'gap' }
+			else
+				check(tok:match('^%d+$'), E.config_invalid_symbol)
+				local n = tonumber(tok)
+				check(n and n >= 1, E.config_invalid_symbol)
+				cells[col_i] = { type = 'key', key_index = n }
 			end
-			if key == 'x' then
-				return { width = 1, type = 'key' }
+		end
+
+		-- coalesce consecutive same key_index into a span
+		local i = 1
+		while i <= #cells do
+			local c = cells[i]
+			if c.type == 'key' then
+				local j = i
+				while
+					j + 1 <= #cells
+					and cells[j + 1].type ~= 'gap'
+					and cells[j + 1].key_index == c.key_index
+				do
+					j = j + 1
+				end
+				if j > i then
+					for k = i, j do
+						cells[k] = { type = 'span', key_index = c.key_index }
+					end
+				end
+				i = j + 1
+			else
+				i = i + 1
 			end
+		end
 
-			local invalid = string.find(key, '[^x^]')
-			check(not invalid, E.config_invalid_symbol)
-			local i = string.find(key, '^', 1, true)
-			check(i, E.config_invalid_span)
+		-- ensure each key_index used in exactly one row (no vertical spans)
+		local row_indexes = {}
+		for _, c in ipairs(cells) do
+			if c.key_index then
+				row_indexes[c.key_index] = true
+			end
+		end
+		for idx in pairs(row_indexes) do
+			check(not seen_indexes[idx], E.key_index_duplicate(idx))
+			seen_indexes[idx] = true
+		end
 
-			return {
-				width = (string.len(key) + 1) / 2,
-				type = 'span',
-				align = tostring(i) .. '/' .. tostring(string.len(key)),
-			}
-		end, keys)
-
-		result[#result + 1] = row_info
+		result[row_i] = cells
 	end
+
 	return result
 end
 
@@ -70,7 +103,6 @@ function M.parse(user_config)
 
 	merged_config.layout = M.parse_layout(merged_config.layout)
 
-	-- TODO: DI the validator
 	validator(merged_config, config.default_config)
 
 	local keymaps =
@@ -87,10 +119,9 @@ return M
 ---- PARSED CONFIG
 ---------------------------------------------------------------------------------
 
----The users config after parsing
 ---@class zmk.Config
----@field timeout number # if using nvim-notify, this will be the duration of the notification
----@field auto_format_pattern string | string[] # autocommand pattern to match against for auto formatting, e.g. '*.keymap'
+---@field timeout number
+---@field auto_format_pattern string | string[]
 ---@field layout zmk.LayoutPlan
 ---@field comment_preview zmk.Preview
 
@@ -103,31 +134,27 @@ return M
 
 ---@alias zmk.PreviewSymbols { space: string, tl: string, tr: string, bl: string, br: string, horz: string, vert: string, tm: string, bm: string, ml: string, mr: string, mm: string }
 
----Struct to represent the users desired layout
 ---@alias zmk.LayoutPlan zmk.LayoutPlanKey[][]
 
----Struct to represent a single key in a zmk.Layout
 ---@class zmk.LayoutPlanKey
----@field width number
----@field align? string
 ---@field type 'key' | 'span' | 'gap'
+---@field key_index? number
 
 ---------------------------------------------------------------------------------
 ---- USER CONFIG
 ---------------------------------------------------------------------------------
 
----The users config passed to zmk before parsing
 ---@class zmk.UserConfig
 ---@field layout zmk.UserLayout
----@field timeout? number # if using nvim-notify, this will be the duration of the notification
----@field auto_format_pattern? string | string[] # autocommand pattern to match against for auto formatting, e.g. '*.keymap'
+---@field timeout? number
+---@field auto_format_pattern? string | string[]
 ---@field comment_preview? zmk.UserPreview
 
 ---@alias zmk.UserLayout string[]
 
 ---@class zmk.UserPreview
 ---@field position? 'top' | 'bottom' | 'none'
----@field keymap_overrides? table<string, string> # table of keymap overrides, e.g. { ESC = 'Esc' }
+---@field keymap_overrides? table<string, string>
 ---@field symbols? zmk.PreviewSymbols
 
 ---@class zmk.InlineConfig

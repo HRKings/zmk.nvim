@@ -7,23 +7,7 @@ local space = ' '
 ---@param key zmk.LayoutGridCell
 ---@return string
 local function align(span, key)
-	-- alignment is a string like 1/3 or 2/3
-	---@diagnostic disable-next-line: missing-parameter
-	local ratio = vim.split(key.align, '/')
-	local nom = tonumber(ratio[1])
-	local denom = tonumber(ratio[2])
-
-	--TODO: handle other alignments like 2/5
-	if nom == 1 then
-		-- left align
-		return key.key .. string.rep(space, span - utils.len(key.key))
-	elseif nom == denom then
-		-- right align
-		return string.rep(space, span - utils.len(key.key)) .. key.key
-	else
-		-- center align
-		return utils.center(span, key.key, space)
-	end
+	return utils.center(span, key.key, space)
 end
 
 ---@param layout zmk.LayoutGrid
